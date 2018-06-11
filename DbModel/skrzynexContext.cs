@@ -22,6 +22,7 @@ namespace SkrzynexConsoleApp.DbModel
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseMySql("datasource=127.0.0.1;port=3306;username=root;password=;database=skrzynex;TreatTinyAsBoolean=false");
+                //optionsBuilder.UseMySql("Server=localhost;port=3306;username=root;password=karol123;database=skrzynex;TreatTinyAsBoolean=false");
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading;
 using SkrzynexConsoleApp;
 using SkrzynexConsoleApp.DbModel;
@@ -12,40 +13,31 @@ namespace skrzynexconsoleapp
     {
         static void Main(string[] args)
         {
-            var gpioHandler = new GPIOHandler();
-            //while (true)
-            //{
-                try
+            
+
+            try
+            {
+                if (args.Length == 0)
                 {
-                    Wait();
-                    gpioHandler.ClearAllLines();
-                    gpioHandler.UpdateSprinklesLinesStatues(true,false,false,false);
-                    Console.WriteLine("Line1");
-                    Wait();
-                    gpioHandler.ClearAllLines();
-                    gpioHandler.UpdateSprinklesLinesStatues(false, true, false, false);
-                    Console.WriteLine("Line2");
-                    Wait();
-                    gpioHandler.ClearAllLines();
-                    gpioHandler.UpdateSprinklesLinesStatues(false, false, true, false);
-                    Console.WriteLine("Line3");
-                    Wait();
-                    gpioHandler.ClearAllLines();
-                    gpioHandler.UpdateSprinklesLinesStatues(false, false, false, true);
-                    Console.WriteLine("Line4");
-                    Wait();
-                    gpioHandler.ClearAllLines();
+                    var gpioHandler = new GPIOHandler();
+                    var sprinkelsHandler = new SpringelsHandler(new skrzynexContext(), gpioHandler);
+                    sprinkelsHandler.UpdateSprinkelsStatus();
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.Message);
+                    var dateFrom = DateTime.ParseExact(args[0],"yyyy_MM_dd_HH_mm",CultureInfo.InvariantCulture);
+                    var dateTo = DateTime.ParseExact(args[1], "yyyy_MM_dd_HH_mm", CultureInfo.InvariantCulture);
+                    var sprinkelsHandler = new SpringelsHandler(new skrzynexContext());
+                    sprinkelsHandler.SetNewAction(1,dateFrom,dateTo);
+
                 }
-            //}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
         }
 
-        private static void Wait()
-        {
-            Thread.Sleep(new TimeSpan(0, 0, 0, 15));
-        }
     }
 }

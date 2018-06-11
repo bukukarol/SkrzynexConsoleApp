@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SkrzynexConsoleApp": {
+      "commandName": "Project",
+      "commandLineArgs": "2018_06_11_22_30 2018_06_11_23_30 "
+    }
+  }
+}

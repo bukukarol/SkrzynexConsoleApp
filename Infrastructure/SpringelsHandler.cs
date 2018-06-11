@@ -10,9 +10,9 @@ namespace SkrzynexConsoleApp.Infrastructure
 {
     public class SpringelsHandler
     {
-        private skrzynexContext _db;
-        private GPIOHandler _gpioHandler;
-
+        private readonly skrzynexContext _db;
+        private readonly GPIOHandler _gpioHandler;
+        private int _actionChangeInterval = 2;
 
         public SpringelsHandler(skrzynexContext db,GPIOHandler gpioHandler)
         {
@@ -20,11 +20,18 @@ namespace SkrzynexConsoleApp.Infrastructure
             _gpioHandler = gpioHandler;
         }
 
+        public SpringelsHandler(skrzynexContext db)
+        {
+            _db = db;
+        }
+
+        #region UpdateStatus
+
         public void UpdateSprinkelsStatus()
         {
             var nowDate = DateTime.Now;
             var activeAction = _db.Sprinkeltasks.FirstOrDefault(x => x.StartDate < nowDate && x.EndDate >= nowDate);
-            if(activeAction==null) return;
+            if (activeAction == null) return;
             UpdateLinesStatuses(activeAction.Sprinkletaskaction);
         }
 
@@ -37,6 +44,53 @@ namespace SkrzynexConsoleApp.Infrastructure
             var line3Action = activeActions.Any(x => x.Line == 3);
             var line4Action = activeActions.Any(x => x.Line == 4);
             _gpioHandler.UpdateSprinklesLinesStatues(line1Action, line2Action, line3Action, line4Action);
+        }
+
+        #endregion
+
+        public void SetNewAction(int mode, DateTime from, DateTime to)
+        {
+            var newTask = new Sprinkeltasks()
+            {
+                CreationTime = DateTime.Now,
+                StartDate = from,
+                EndDate = to,
+                WateringMode = mode,
+            };
+            _db.Add(newTask);
+            _db.SaveChanges();
+            List<Sprinkletaskaction> tasksActionsList;
+            switch (mode)
+            {
+                case 1:
+                    tasksActionsList = GetSigleLineActionForTask(newTask.Id, from, to);
+                    break;
+                case 2:
+                case 4:
+                default:
+                throw new Exception("Not implemented action mode");
+            }
+            _db.AddRange(tasksActionsList);
+            _db.SaveChanges();
+            Console.WriteLine($"Task {newTask.Id} created ");
+        }
+
+        private List<Sprinkletaskaction> GetSigleLineActionForTask(int taskId, DateTime from, DateTime to)
+        {
+            var result = new List<Sprinkletaskaction>();
+            var line = 0;
+            for (var date = from; date < to; date=date.AddMinutes(_actionChangeInterval))
+            {
+                result.Add(new Sprinkletaskaction()
+                {
+                    TaskId = taskId,
+                    StartDate =  date,
+                    EndDate = date.AddMinutes(_actionChangeInterval),
+                    Line = line+1,
+                });
+                line = (line + 1) % 4;
+            }
+            return result;
         }
     }
 }
