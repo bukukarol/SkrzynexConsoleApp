@@ -24,9 +24,24 @@ namespace SkrzynexConsoleApp.Infrastructure
             _line2.PinMode = GpioPinDriveMode.Output;
             _line3.PinMode = GpioPinDriveMode.Output;
             _line4.PinMode = GpioPinDriveMode.Output;
-            ClearAllLines();
         }
 
+        public bool GetLineStatus(int lineNr)
+        {
+            switch (lineNr)
+            {
+                case 1:
+                    return !_line1.Read();
+                case 2:
+                    return !_line2.Read();
+                case 3:
+                    return !_line3.Read();
+                case 4:
+                    return !_line4.Read();
+                default: 
+                    throw new Exception($"Not implemented line {lineNr}");
+            }
+        }
         public void ClearAllLines()
         {
             //_line1.InputPullMode = GpioPinResistorPullMode.PullUp;

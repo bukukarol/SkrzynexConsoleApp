@@ -12,7 +12,7 @@ namespace SkrzynexConsoleApp.Infrastructure
     {
         private readonly skrzynexContext _db;
         private readonly GPIOHandler _gpioHandler;
-        private int _actionChangeInterval = 2;
+        private int _actionChangeInterval = 15;
 
         public SpringelsHandler(skrzynexContext db,GPIOHandler gpioHandler)
         {
@@ -25,14 +25,26 @@ namespace SkrzynexConsoleApp.Infrastructure
             _db = db;
         }
 
+        public SpringelsHandler(GPIOHandler gpioHandler)
+        {
+            _gpioHandler = gpioHandler;
+        }
+
         #region UpdateStatus
 
         public void UpdateSprinkelsStatus()
         {
             var nowDate = DateTime.Now;
-            var activeAction = _db.Sprinkeltasks.FirstOrDefault(x => x.StartDate < nowDate && x.EndDate >= nowDate);
-            if (activeAction == null) return;
-            UpdateLinesStatuses(activeAction.Sprinkletaskaction);
+            var activeTask = _db.Sprinkeltasks.FirstOrDefault(x => x.StartDate < nowDate && x.EndDate >= nowDate);
+            if (activeTask == null)
+            {
+                _gpioHandler.ClearAllLines();
+            }
+            else
+            {
+                var actions = _db.Sprinkletaskaction.Where(x => x.TaskId == activeTask.Id);
+                UpdateLinesStatuses(actions);
+            }
         }
 
         private void UpdateLinesStatuses(IEnumerable<Sprinkletaskaction> taskes)
@@ -48,8 +60,9 @@ namespace SkrzynexConsoleApp.Infrastructure
 
         #endregion
 
-        public void SetNewAction(int mode, DateTime from, DateTime to)
+        public void SetNewAction(int mode, DateTime from, DateTime to,int? customActionInterval=null)
         {
+            if (customActionInterval.HasValue) _actionChangeInterval = customActionInterval.Value;
             var newTask = new Sprinkeltasks()
             {
                 CreationTime = DateTime.Now,
@@ -91,6 +104,20 @@ namespace SkrzynexConsoleApp.Infrastructure
                 line = (line + 1) % 4;
             }
             return result;
+        }
+
+        public void PrintSprinklersStatuses()
+        {
+            PrintLineStatusInfo(1);
+            PrintLineStatusInfo(2);
+            PrintLineStatusInfo(3);
+            PrintLineStatusInfo(4);
+        }
+
+        private void PrintLineStatusInfo(int lineNr)
+        {
+            var text = $"Line{lineNr} status: {_gpioHandler.GetLineStatus(lineNr)}";
+            Console.WriteLine(text);
         }
     }
 }
