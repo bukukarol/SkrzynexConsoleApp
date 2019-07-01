@@ -15,7 +15,7 @@ var framework = Argument("framework", "netcoreapp2.0");
 // ARGUMENTS (WITH DEFAULT PARAMETERS FOR LINUX (Ubuntu 16.04, Raspbian Jessie, etc)
 ///////////////////////////////////////////////////////////////////////
 var runtime = Argument("runtime", "linux-arm");
-var destinationIp = Argument("destinationPi", "192.168.1.25");
+var destinationIp = Argument("destinationPi", "25.66.171.164");
 var destinationDirectory = Argument("destinationDirectory", @"/home/pi/dev/ExecApp");
 var username = Argument("username", "pi");
 var sessionname = Argument("sessionname", "Raspberry Pi");

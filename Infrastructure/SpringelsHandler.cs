@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using SkrzynexConsoleApp.DbModel;
-using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
+
 
 namespace SkrzynexConsoleApp.Infrastructure
 {

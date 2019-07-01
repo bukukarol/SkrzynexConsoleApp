@@ -1,24 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
+
 
 namespace SkrzynexConsoleApp.Infrastructure
 {
     public class GPIOHandler
     {
-        private GpioPin _line1;
-        private GpioPin _line2;
-        private GpioPin _line3;
-        private GpioPin _line4;
-
+        private readonly IGpioPin _line1;
+        private readonly IGpioPin _line2;
+        private readonly IGpioPin _line3;
+        private readonly IGpioPin _line4;
+        
         public GPIOHandler()
         {
-            _line1 = Pi.Gpio.Pin02;
-            _line2 = Pi.Gpio.Pin03;
-            _line3 = Pi.Gpio.Pin04;
-            _line4 = Pi.Gpio.Pin05;
+
+            _line1 = Pi.Gpio[BcmPin.Gpio02];
+            _line2 = Pi.Gpio[BcmPin.Gpio03];
+            _line3 = Pi.Gpio[BcmPin.Gpio04];
+            _line4 = Pi.Gpio[BcmPin.Gpio17];
+            
 
             _line1.PinMode = GpioPinDriveMode.Output;
             _line2.PinMode = GpioPinDriveMode.Output;
@@ -63,10 +64,18 @@ namespace SkrzynexConsoleApp.Infrastructure
             UpdateLineStatus(_line4, line4);
         }
         
-        private void UpdateLineStatus(GpioPin line, bool newStatus)
+        private void UpdateLineStatus(IGpioPin line, bool newStatus)
         {
             var oldStatus = line.Read(); // on when false , off when true
             if(oldStatus==newStatus) line.Write(!newStatus); 
+        }
+
+        public void TurnOnAllLines()
+        {
+            UpdateLineStatus(_line1, true);
+            UpdateLineStatus(_line2, true);
+            UpdateLineStatus(_line3, true);
+            UpdateLineStatus(_line4, true);
         }
     }
 }
